@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>設計與科技科｜提示詞挑戰：隱形嘅扶手電梯骨架</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --ink: #1a1f2e;
+      --muted: #5a6578;
+      --accent: #c8102e;
+      --accent-dark: #9a0c23;
+      --ok: #0d7a4f;
+      --ok-bg: #e6f7ef;
+      --warn: #b45309;
+      --warn-bg: #fff7ed;
+      --line: #d8dee8;
+      --focus: #2563eb;
+      --shadow: 0 8px 28px rgba(26, 31, 46, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Hiragino Sans CNS", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.65;
+      font-size: 17px;
+    }
+
+    .wrap {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 24px 18px 64px;
+    }
+
+    header.hero {
+      background: linear-gradient(135deg, #1a1f2e 0%, #2d3550 55%, #c8102e 160%);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    header.hero .crest {
+      flex-shrink: 0;
+      width: 88px;
+      height: 88px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    header.hero .hero-text { flex: 1; min-width: 0; }
+    header.hero .school-line {
+      margin: 0 0 4px;
+      font-size: 0.92rem;
+      opacity: 0.95;
+      letter-spacing: 0.02em;
+    }
+    header.hero .subject {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+      padding: 3px 12px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: 0.06em;
+    }
+    header.hero h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.35rem, 3.5vw, 1.85rem);
+      letter-spacing: 0.02em;
+      line-height: 1.3;
+    }
+    header.hero p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px 22px 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      color: var(--ink);
+    }
+    .card h3 {
+      margin: 16px 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .photo-wrap {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #eee;
+    }
+    .photo-wrap img {
+      display: block;
+      width: 100%;
+      height: auto;
+      vertical-align: middle;
+    }
+    .photo-caption {
+      margin: 10px 0 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .challenge-q {
+      margin: 16px 0 0;
+      padding: 14px 16px;
+      background: #fff5f6;
+      border-left: 5px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 0;
+    }
+    .step {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+    }
+    .step strong {
+      display: block;
+      color: var(--accent);
+      font-size: 1.08rem;
+      margin: 0;
+    }
+
+    label.prompt-label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    textarea#prompt {
+      width: 100%;
+      min-height: 220px;
+      padding: 14px 16px;
+      font-size: 1rem;
+      line-height: 1.6;
+      font-family: inherit;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      resize: vertical;
+      background: #fafbfd;
+      color: var(--ink);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    textarea#prompt:focus {
+      outline: none;
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+      background: #fff;
+    }
+    .hint {
+      margin: 8px 0 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    button {
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 12px 22px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.15s, box-shadow 0.15s;
+    }
+    button:active { transform: scale(0.98); }
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(200, 16, 46, 0.35);
+    }
+    button.primary:hover { background: var(--accent-dark); }
+    button.secondary {
+      background: #fff;
+      color: var(--ink);
+      border: 2px solid var(--line);
+    }
+    button.secondary:hover { background: #f1f5f9; }
+    button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    #result { display: none; }
+    #result.visible { display: block; }
+
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .score-circle {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      flex-shrink: 0;
+      border: 4px solid;
+    }
+    .score-circle .num { font-size: 2rem; line-height: 1; }
+    .score-circle .den { font-size: 0.85rem; opacity: 0.8; }
+    .score-circle.pass {
+      background: var(--ok-bg);
+      border-color: var(--ok);
+      color: var(--ok);
+    }
+    .score-circle.fail {
+      background: var(--warn-bg);
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+    .score-summary h3 { margin: 0 0 6px; font-size: 1.25rem; }
+    .score-summary p { margin: 0; color: var(--muted); }
+
+    .dims {
+      display: grid;
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .dim {
+      display: grid;
+      grid-template-columns: 88px 52px 1fr;
+      gap: 8px;
+      align-items: start;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-size: 0.95rem;
+    }
+    .dim .name { font-weight: 700; }
+    .dim .pts {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: right;
+    }
+    .dim .fb { color: var(--muted); }
+
+    .tips {
+      background: var(--warn-bg);
+      border: 1px solid #fdba74;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-top: 12px;
+    }
+    .tips h3 {
+      margin: 0 0 8px;
+      color: var(--warn);
+      font-size: 1.05rem;
+    }
+    .tips ul { margin: 0; padding-left: 1.2em; }
+    .tips li { margin-bottom: 6px; }
+
+    .unlock {
+      display: none;
+      margin-top: 18px;
+      padding: 18px;
+      background: var(--ok-bg);
+      border: 2px solid var(--ok);
+      border-radius: 14px;
+    }
+    .unlock.visible { display: block; }
+    .unlock .celebrate {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--ok);
+      margin: 0 0 10px;
+    }
+    .unlock .explain {
+      margin: 0 0 14px;
+      font-size: 1.02rem;
+    }
+    .unlock img {
+      display: block;
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid #a7f3d0;
+      background: #fff;
+    }
+    .unlock .model-note {
+      margin: 12px 0 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    .saved-prompt {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: #fff;
+      border: 1px dashed var(--ok);
+      border-radius: 10px;
+    }
+    .saved-prompt h4 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      color: var(--ok);
+    }
+    .saved-prompt pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+    .copy-btn {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      padding: 8px 14px;
+      background: var(--ok);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .copy-btn:hover { filter: brightness(0.92); }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 560px) {
+      .dim {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+      .dim .pts { text-align: left; }
+      header.hero {
+        padding: 16px;
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+      }
+      header.hero .crest { width: 72px; height: 72px; }
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .card { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <img
+        class="crest"
+        src="school-crest.png"
+        alt="粉嶺官立中學校徽"
+        width="88"
+        height="88"
+      />
+      <div class="hero-text">
+        <p class="school-line">粉嶺官立中學</p>
+        <div class="subject">設計與科技科</div>
+        <h1>提示詞挑戰：隱形嘅扶手電梯骨架</h1>
+        <p>用「角色 · 任務 · 細節 · 輸出」四步法，寫出高質素提示詞。</p>
+      </div>
+    </header>
+
+    <section class="card" aria-labelledby="hook-title">
+      <h2 id="hook-title">觀察挑戰</h2>
+      <div class="photo-wrap">
+        <img
+          src="escalator-photo.png"
+          alt="商場內一條又長又斜的扶手電梯，側面印有 McDonald's 標誌，中間沒有支柱支撐"
+          width="1200"
+          height="800"
+        />
+      </div>
+      <p class="photo-caption">圖：商場內跨越大空間的長扶手電梯——中間好像「懸空」，沒有柱來托住。</p>
+      <p class="challenge-q">為什麼扶手電梯這麼重和這麼長，都不用柱來支撐呢？</p>
+    </section>
+
+    <section class="card" aria-labelledby="method-title">
+      <h2 id="method-title">四步提示詞方法</h2>
+      <div class="steps">
+        <div class="step"><strong>① 角色</strong></div>
+        <div class="step"><strong>② 任務</strong></div>
+        <div class="step"><strong>③ 細節</strong></div>
+        <div class="step"><strong>④ 輸出</strong></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="write-title">
+      <h2 id="write-title">寫你的提示詞</h2>
+      <label class="prompt-label" for="prompt">請輸入完整提示詞</label>
+      <textarea
+        id="prompt"
+        name="prompt"
+        maxlength="4000"
+        placeholder="在此輸入你的提示詞……"
+      ></textarea>
+      <div class="actions">
+        <button type="button" class="primary" id="btn-submit">提交評分</button>
+        <button type="button" class="secondary" id="btn-retry">再試一次</button>
+      </div>
+    </section>
+
+    <section class="card" id="result" aria-live="polite" aria-atomic="true">
+      <h2>評分結果</h2>
+      <div class="score-row">
+        <div class="score-circle" id="score-circle" aria-hidden="true">
+          <span class="num" id="score-num">0</span>
+          <span class="den">/ 10</span>
+        </div>
+        <div class="score-summary">
+          <h3 id="score-title">—</h3>
+          <p id="score-sub">—</p>
+        </div>
+      </div>
+
+      <div class="dims" id="dims"></div>
+
+      <div class="tips" id="tips" hidden>
+        <h3>改善建議</h3>
+        <ul id="tips-list"></ul>
+      </div>
+
+      <div class="unlock" id="unlock">
+        <p class="celebrate" id="celebrate">🎉 恭喜達標！你成功揭開隱形骨架！</p>
+        <p class="explain">
+          扶手電梯內部有一道像橋樑的<strong>鋼桁架（truss）</strong>骨架。
+          它把梯級、驅動裝置和乘客重量傳到<strong>上下層樓板的承托點</strong>，
+          所以中間跨空處不需要另加支柱。
+        </p>
+        <img
+          id="skeleton-img"
+          src="escalator-truss-skeleton.jpg"
+          alt="扶手電梯內部鋼桁架剖面示意圖：藍色散架、紅扶手、灰梯級，只靠上下樓板承托"
+          width="1200"
+          height="675"
+          loading="lazy"
+        />
+        <p class="model-note">💡 你可以按上圖的骨架，用竹籤、飲管或 3D 打印製作一個簡易桁架模型，親自感受「橋式」承重。</p>
+        <div class="saved-prompt">
+          <h4>你的達標提示詞（可作參考答案）</h4>
+          <pre id="saved-text"></pre>
+          <button type="button" class="copy-btn" id="btn-copy">複製提示詞</button>
+        </div>
+      </div>
+    </section>
+
+    <footer>粉嶺官立中學 · 設計與科技科 · 提示詞挑戰 · 本地評分</footer>
+  </div>
+
+  <script>
+(function () {
+  "use strict";
+
+  var PASS = 7;
+  var promptEl = document.getElementById("prompt");
+  var resultEl = document.getElementById("result");
+  var scoreCircle = document.getElementById("score-circle");
+  var scoreNum = document.getElementById("score-num");
+  var scoreTitle = document.getElementById("score-title");
+  var scoreSub = document.getElementById("score-sub");
+  var dimsEl = document.getElementById("dims");
+  var tipsEl = document.getElementById("tips");
+  var tipsList = document.getElementById("tips-list");
+  var unlockEl = document.getElementById("unlock");
+  var savedText = document.getElementById("saved-text");
+  var skeletonImg = document.getElementById("skeleton-img");
+
+  function norm(s) {
+    return String(s || "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function hasAny(text, words) {
+    for (var i = 0; i < words.length; i++) {
+      if (text.indexOf(words[i].toLowerCase()) !== -1) return true;
+    }
+    return false;
+  }
+
+  function countHits(text, words) {
+    var n = 0;
+    for (var i = 0; i < words.length; i++) {
+      if (text.indexOf(words[i].toLowerCase()) !== -1) n++;
+    }
+    return n;
+  }
+
+  function detectStructure(raw) {
+    var labels = 0;
+    if (/角色\s*[:：]/.test(raw) || /^角色/m.test(raw) || /【角色】/.test(raw)) labels++;
+    if (/任務\s*[:：]/.test(raw) || /^任務/m.test(raw) || /【任務】/.test(raw)) labels++;
+    if (/細節\s*[:：]/.test(raw) || /^細節/m.test(raw) || /【細節】/.test(raw) || /詳細\s*[:：]/.test(raw)) labels++;
+    if (/輸出\s*[:：]/.test(raw) || /^輸出/m.test(raw) || /【輸出】/.test(raw) || /格式\s*[:：]/.test(raw)) labels++;
+    var lines = raw.split(/\n/).filter(function (l) { return l.trim().length > 8; });
+    var multiPara = lines.length >= 3;
+    return { labels: labels, multiPara: multiPara };
+  }
+
+  function scorePrompt(raw) {
+    var text = norm(raw);
+    var struct = detectStructure(raw);
+    var tips = [];
+    var dims = [];
+
+    // --- 角色 0–2 ---
+    var roleWords = [
+      "角色", "你是", "你係", "身為", "作為",
+      "結構工程師", "機械工程師", "電梯工程師", "升降機",
+      "土木工程師", "建築工程師", "工程師", "專家", "教授",
+      "structural engineer", "mechanical engineer", "engineer"
+    ];
+    var roleExpert = hasAny(text, [
+      "結構工程師", "機械工程師", "電梯工程師", "土木工程師",
+      "建築工程師", "升降機工程", "structural engineer", "mechanical engineer"
+    ]);
+    var roleGeneric = hasAny(text, ["工程師", "專家", "教授", "你是", "你係", "身為", "作為", "角色"]);
+    var roleScore = 0;
+    var roleFb = "";
+    if (roleExpert) {
+      roleScore = 2;
+      roleFb = "清楚指定相關專家角色，很好！";
+    } else if (roleGeneric || struct.labels >= 1) {
+      roleScore = 1;
+      roleFb = "有角色意識，但可更具體（例如結構／電梯工程師）。";
+      tips.push("在開頭寫明：「角色：你是一位結構工程師／電梯工程師……」");
+    } else {
+      roleScore = 0;
+      roleFb = "未見到明確角色。請先指定 AI 要扮演邊類專家。";
+      tips.push("補上角色：例如「你是熟悉扶手電梯的結構工程師」。");
+    }
+    dims.push({ name: "角色", max: 2, score: roleScore, fb: roleFb });
+
+    // --- 任務 0–2 ---
+    var taskCore = hasAny(text, [
+      "承重", "承托", "桁架", "骨架", "內部結構", "內部", "truss",
+      "點解唔使柱", "不用柱", "無需柱", "沒有柱", "無柱", "唔使柱",
+      "為什麼", "為甚麼", "點解", "為何", "支撐", "支承"
+    ]);
+    var taskAsk = hasAny(text, [
+      "任務", "請解釋", "請說明", "請分析", "請告訴", "幫我", "解釋", "說明", "分析", "為什麼", "點解"
+    ]);
+    var taskLoad = hasAny(text, [
+      "承重結構", "承重", "桁架", "鋼桁架", "內部結構", "骨架", "truss", "load"
+    ]);
+    var taskScore = 0;
+    var taskFb = "";
+    if (taskLoad && (taskAsk || taskCore)) {
+      taskScore = 2;
+      taskFb = "任務清晰，聚焦內部承重／點解唔使柱。";
+    } else if (taskCore || taskAsk) {
+      taskScore = 1;
+      taskFb = "有提問方向，但請更明確問「內部承重結構／點解無柱」。";
+      tips.push("任務要直接問：為什麼長扶手電梯中間不用柱？內部點樣承重？");
+    } else {
+      taskScore = 0;
+      taskFb = "未清楚提出與承重／無柱有關的任務。";
+      tips.push("寫明任務：請解釋扶手電梯內部承重結構，以及為何中間不用柱支撐。");
+    }
+    dims.push({ name: "任務", max: 2, score: taskScore, fb: taskFb });
+
+    // --- 細節 0–3 ---
+    var detailWords = [
+      "扶手電梯", "自動梯", "電梯", "escalator",
+      "長", "長跨度", "跨度", "跨越大", "好長", "這麼長",
+      "重", "這麼重", "自重", "重量",
+      "中間", "無中間柱", "沒有柱", "不用柱", "唔使柱", "無柱", "支柱", "柱",
+      "鋼桁架", "桁架", "truss", "鋼架", "骨架", "內部",
+      "承托點", "樓板", "上下層", "上下", "支撐點", "支承",
+      "商場", "梯形", "梯級", "驅動"
+    ];
+    var detailHits = countHits(text, detailWords);
+    var hasTruss = hasAny(text, ["鋼桁架", "桁架", "truss", "鋼架", "骨架"]);
+    var hasSpan = hasAny(text, ["長", "跨度", "長跨", "這麼長", "好長"]);
+    var hasNoCol = hasAny(text, ["不用柱", "無柱", "沒有柱", "唔使柱", "無中間柱", "中間"]);
+    var detailScore = 0;
+    if (detailHits >= 6 && hasTruss && (hasSpan || hasNoCol)) {
+      detailScore = 3;
+    } else if (detailHits >= 4 || (hasTruss && detailHits >= 2)) {
+      detailScore = 2;
+    } else if (detailHits >= 2) {
+      detailScore = 1;
+    } else {
+      detailScore = 0;
+    }
+    var detailFb = "";
+    if (detailScore === 3) {
+      detailFb = "細節充足：長度、無柱、內部桁架等關鍵都有提到。";
+    } else if (detailScore === 2) {
+      detailFb = "有不錯細節，可再補「鋼桁架／上下樓板承托點」等關鍵詞。";
+      if (!hasTruss) tips.push("細節加入：內部鋼桁架（truss）、上下樓板承托點。");
+      else tips.push("細節可再具體：長跨度、無中間柱、承托點位置。");
+    } else if (detailScore === 1) {
+      detailFb = "細節偏少。請具體描述場景與結構關鍵詞。";
+      tips.push("補充細節：扶手電梯又長又重、中間無柱、內部鋼桁架、樓板承托點。");
+    } else {
+      detailFb = "幾乎沒有可用細節，AI 難以聚焦。";
+      tips.push("加入細節：長跨度扶手電梯、無中間支柱、內部承重骨架（鋼桁架）。");
+    }
+    dims.push({ name: "細節", max: 3, score: detailScore, fb: detailFb });
+
+    // --- 輸出 0–2 ---
+    var outWords = [
+      "輸出", "格式", "圖解", "圖示", "示意圖", "標註", "標籤",
+      "分點", "條列", "列點", "步驟", "表格",
+      "中學生", "學生", "通俗", "簡單", "易明", "易懂", "適合",
+      "diagram", "annotate", "bullet", "簡報", "說明書"
+    ];
+    var outHits = countHits(text, outWords);
+    var outForm = hasAny(text, ["圖解", "圖示", "示意圖", "標註", "分點", "條列", "diagram", "輸出", "格式"]);
+    var outAudience = hasAny(text, ["中學生", "學生", "通俗", "簡單", "易明", "易懂", "適合"]);
+    var outScore = 0;
+    var outFb = "";
+    if (outForm && outAudience) {
+      outScore = 2;
+      outFb = "清楚指定輸出形式與對象，完整！";
+    } else if (outForm || outAudience || outHits >= 1 || struct.labels >= 4) {
+      outScore = 1;
+      outFb = "有輸出要求，可同時寫「圖解＋標註」同「適合中學生」。";
+      tips.push("輸出寫清楚：請用分點＋簡易圖解標註，並用中學生能明白的語言。");
+    } else {
+      outScore = 0;
+      outFb = "未指定想要怎樣的輸出（圖解／分點／讀者對象）。";
+      tips.push("加上輸出：例如「用圖解標註骨架，並分點解釋給中學生看」。");
+    }
+    dims.push({ name: "輸出", max: 2, score: outScore, fb: outFb });
+
+    // --- 整體質素 0–1 ---
+    var len = text.replace(/\s/g, "").length;
+    var gibberish = /^(.)\1{8,}$/.test(text.replace(/\s/g, "")) || len < 12;
+    var onTopic = hasAny(text, [
+      "電梯", "扶手", "escalator", "桁架", "承重", "柱", "結構", "骨架", "truss", "支撐"
+    ]);
+    var quality = 0;
+    var qualityFb = "";
+    if (!gibberish && len >= 40 && onTopic && (struct.labels >= 2 || struct.multiPara)) {
+      quality = 1;
+      qualityFb = "整體連貫、切題，結構清楚。";
+    } else if (!gibberish && len >= 25 && onTopic) {
+      quality = 1;
+      qualityFb = "內容切題，尚算完整。";
+    } else if (!gibberish && len >= 20) {
+      quality = 0;
+      qualityFb = "稍為短或結構鬆散，建議用四步標題組織。";
+      tips.push("用「角色／任務／細節／輸出」四段標題，令提示詞更有條理。");
+    } else {
+      quality = 0;
+      qualityFb = "過短、離題或難以理解，請重寫完整四步提示詞。";
+      tips.push("參考輸入框灰色示例，寫一段完整、切題的四步提示詞。");
+    }
+    // Structure bonus nudge into quality if already 0 but well labeled & long
+    if (quality === 0 && struct.labels >= 3 && len >= 60 && onTopic) {
+      quality = 1;
+      qualityFb = "已用四步標示，整體質素達標。";
+    }
+    dims.push({ name: "整體質素", max: 1, score: quality, fb: qualityFb });
+
+    var total = roleScore + taskScore + detailScore + outScore + quality;
+
+    // Deduplicate tips, cap at 5
+    var seen = {};
+    var uniq = [];
+    for (var t = 0; t < tips.length; t++) {
+      if (!seen[tips[t]]) {
+        seen[tips[t]] = true;
+        uniq.push(tips[t]);
+      }
+    }
+    if (total >= PASS) uniq = [];
+
+    // If still under pass and few tips, add structure tip
+    if (total < PASS && uniq.length < 2 && struct.labels < 3) {
+      uniq.push("建議用四個標題分段：角色、任務、細節、輸出。");
+    }
+
+    return { total: total, dims: dims, tips: uniq.slice(0, 5), struct: struct };
+  }
+
+  function render(result, raw) {
+    resultEl.classList.add("visible");
+    scoreNum.textContent = String(result.total);
+
+    var pass = result.total >= PASS;
+    scoreCircle.className = "score-circle " + (pass ? "pass" : "fail");
+
+    if (pass) {
+      scoreTitle.textContent = "達標！（" + result.total + "／10）";
+      scoreSub.textContent = "你的提示詞已達到 7 分或以上，骨架圖已解鎖。";
+    } else {
+      scoreTitle.textContent = "未達標（" + result.total + "／10）";
+      scoreSub.textContent = "還差 " + (PASS - result.total) + " 分。按下方建議修改後再提交。";
+    }
+
+    dimsEl.innerHTML = "";
+    for (var i = 0; i < result.dims.length; i++) {
+      var d = result.dims[i];
+      var row = document.createElement("div");
+      row.className = "dim";
+      row.innerHTML =
+        '<div class="name">' + d.name + "</div>" +
+        '<div class="pts">' + d.score + "／" + d.max + "</div>" +
+        '<div class="fb">' + d.fb + "</div>";
+      dimsEl.appendChild(row);
+    }
+
+    if (!pass && result.tips.length) {
+      tipsEl.hidden = false;
+      tipsList.innerHTML = "";
+      for (var j = 0; j < result.tips.length; j++) {
+        var li = document.createElement("li");
+        li.textContent = result.tips[j];
+        tipsList.appendChild(li);
+      }
+    } else {
+      tipsEl.hidden = true;
+      tipsList.innerHTML = "";
+    }
+
+    if (pass) {
+      unlockEl.classList.add("visible");
+      savedText.textContent = raw.trim();
+      // Force image load only when unlocked (src already set; ensure visible)
+      skeletonImg.removeAttribute("hidden");
+    } else {
+      unlockEl.classList.remove("visible");
+      savedText.textContent = "";
+    }
+
+    resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function onSubmit() {
+    var raw = promptEl.value;
+    if (!raw || !raw.trim()) {
+      resultEl.classList.add("visible");
+      scoreNum.textContent = "0";
+      scoreCircle.className = "score-circle fail";
+      scoreTitle.textContent = "請先輸入提示詞";
+      scoreSub.textContent = "空白內容無法評分。可參考輸入框內的灰色示例。";
+      dimsEl.innerHTML = "";
+      tipsEl.hidden = false;
+      tipsList.innerHTML = "<li>先寫「角色、任務、細節、輸出」四部分，再按提交。</li>";
+      unlockEl.classList.remove("visible");
+      return;
+    }
+    var result = scorePrompt(raw);
+    render(result, raw);
+  }
+
+  function onRetry() {
+    resultEl.classList.remove("visible");
+    unlockEl.classList.remove("visible");
+    dimsEl.innerHTML = "";
+    tipsList.innerHTML = "";
+    tipsEl.hidden = true;
+    savedText.textContent = "";
+    scoreNum.textContent = "0";
+    promptEl.focus();
+  }
+
+  document.getElementById("btn-submit").addEventListener("click", onSubmit);
+  document.getElementById("btn-retry").addEventListener("click", onRetry);
+
+  document.getElementById("btn-copy").addEventListener("click", function () {
+    var t = savedText.textContent || "";
+    if (!t) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(function () {
+        var btn = document.getElementById("btn-copy");
+        var old = btn.textContent;
+        btn.textContent = "已複製 ✓";
+        setTimeout(function () { btn.textContent = old; }, 1600);
+      }).catch(function () {
+        window.prompt("請手動複製：", t);
+      });
+    } else {
+      window.prompt("請手動複製：", t);
+    }
+  });
+
+  // Enter+Ctrl/Cmd to submit
+  promptEl.addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      onSubmit();
+    }
+  });
+})();
+  </script>
+</body>
+</html>
